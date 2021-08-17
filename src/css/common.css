@@ -30,6 +30,12 @@ img {
   margin-top: 200px;
 }
 
+.timer--container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .button {
   cursor: pointer;
   width: 160px;
@@ -38,4 +44,35 @@ img {
   margin-right: 20px;
   text-transform: uppercase;
   border-radius: 5px;
+}
+
+.button--timer {
+  margin-right: 0;
+}
+
+.timer {
+  color: #212121;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.input {
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.input--description {
+  font-size: 24px;
+}
+
+.field {
+  display: inline-block;
+  font-size: 24px;
+  padding: 16px;
+  text-transform: uppercase;
+}
+
+.value {
+  display: block;
+  font-size: 72px;
 }

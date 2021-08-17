@@ -12,6 +12,7 @@ const refs = {
 };
 
 let selectedDate = null;
+let isActiv = false;
 
 const options = {
   enableTime: true,
@@ -23,8 +24,6 @@ const options = {
         refs.startButton.removeAttribute('disabled');
         Notiflix.Notify.success('Щоб розпочати відлік часу, натисність кнопку "START"!');
         selectedDate = selectedDates[0].getTime();
-        console.log(selectedDate);
-        return selectedDate;
     } else {
         refs.startButton.setAttribute('disabled', '');
         Notiflix.Notify.failure('Виберіть дату, яка ще не настала!');
@@ -37,23 +36,28 @@ flatpickr(refs.dateInput, options)
 refs.startButton.addEventListener('click', onStartButtonClick);
 
 function onStartButtonClick() {
-    let IntervalId = null;
+  if (isActiv) {
+    return;
+  }
+  
+  let interval = null;
+  let deltaDate = null;
+ 
+  isActiv = true;
 
-    IntervalId = setInterval(() => {
-        const currentDate = Date.now();
-        const DeltaDate = selectedDate - currentDate;
-        const { days, hours, minutes, seconds } = convertMs(DeltaDate);
-        refs.secondsField.textContent = seconds;
-        refs.minutesField.textContent = minutes;
-        refs.hoursField.textContent = hours;
-        refs.daysField.textContent = days;
-    }, 1000);
-
-    // if 
-
-    // function stop() {
-    //     clearInterval(IntervalId);
-    // }
+  interval = setInterval(() => {
+    const currentDate = Date.now();
+    deltaDate = selectedDate - currentDate;
+    const { days, hours, minutes, seconds } = convertMs(deltaDate);
+    refs.secondsField.textContent = seconds;
+    refs.minutesField.textContent = minutes;
+    refs.hoursField.textContent = hours;
+    refs.daysField.textContent = days;
+  }, 1000);
+  
+  // if (deltaDate === 0) {
+  //   clearInterval(interval);
+  // }
 }
 
 function convertMs(ms) {
