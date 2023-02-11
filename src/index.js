@@ -1,29 +1,39 @@
 import './css/styles.css';
-import axios from 'axios';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import createMarkup from './commponents/createMarkup';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { getPictures } from './commponents/API';
+
+const searchForm = document.querySelector('.search-form');
+const galleryContainer = document.querySelector('.gallery');
+const loadMoreButton = document.querySelector('.load-more');
+
+searchForm.addEventListener('submit', showPictures);
+loadMoreButton.addEventListener('click', loadMore);
 
 
-const API_KEY = '33457502-2f0900523bf20d938f40b8c6d';
-const BASE_URL = 'https://pixabay.com/api/';
 
-function createMarkup () {
-    return `<div class="photo-card">
-        <img src="" alt="" loading="lazy" />
-        <div class="info">
-            <p class="info-item">
-            <b>Likes</b>
-            </p>
-            <p class="info-item">
-            <b>Views</b>
-            </p>
-            <p class="info-item">
-            <b>Comments</b>
-            </p>
-            <p class="info-item">
-            <b>Downloads</b>
-            </p>
-        </div>
-    </div>`;
+function showPictures(e) {
+    e.preventDefault();
+    const {elements: { searchQuery }} = e.currentTarget;
+    if (searchQuery.value.trim() === '') return;
+
+    getPictures(searchQuery.value.trim())
+    .then(({hits, totalHits}) => {
+        if (hits.length === 0) {
+        return Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+        } else {
+        Notify.success(`Hooray! We found ${totalHits} images.`);
+        return hits;
+    }})
+    .then(hits => {
+        galleryContainer.innerHTML = hits.map(hit => createMarkup(hit)).join('');
+        new SimpleLightbox('.gallery a');
+    })    
 }
+
+function loadMore() {
+
+}
+
