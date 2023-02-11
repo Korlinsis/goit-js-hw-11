@@ -16,7 +16,7 @@ searchForm.addEventListener('submit', showPictures);
 loadMoreButton.addEventListener('click', loadMore);
 loadMoreButton.classList.add('is-hidden');
 
-function showPictures(e) {
+async function showPictures(e) {
     e.preventDefault();
     galleryContainer.innerHTML = '';
     loadMoreButton.classList.add('is-hidden');
@@ -27,38 +27,44 @@ function showPictures(e) {
 
     if (request === '') return;
 
-    getPictures(request, page)
-    .then(({hits, totalHits}) => {
+    try {
+        const pictures = await getPictures(request, page);
+        const {hits, totalHits} = pictures;
+        
         if (hits.length === 0) {
             throw new Error ('Not found.');
         } else {
             loadMoreButton.classList.remove('is-hidden');
             if (hits.length !== 40) loadMoreButton.classList.add('is-hidden');
             Notify.success(`Hooray! We found ${totalHits} images.`);
-            return hits;
+            galleryContainer.innerHTML = hits.map(hit => createMarkup(hit)).join('');
+            lightbox = new SimpleLightbox('.gallery a');
+            page += 1;
         }
-    })
-    .then(hits => {
-        galleryContainer.innerHTML = hits.map(hit => createMarkup(hit)).join('');
-        lightbox = new SimpleLightbox('.gallery a');
-        page += 1;
-    })
-    .catch(requestError);   
+
+    } catch (error) {
+        requestError();   
+    }
 }
 
-function loadMore() {
-    getPictures(request, page)
-    .then (({hits}) => {
+async function loadMore () {
+    try {
+        const pictures = await getPictures(request, page);
+        const {hits} = pictures;
+
         if (hits.length !== 40) {
             Notify.info(`We're sorry, but you've reached the end of search results.`);
             loadMoreButton.classList.add('is-hidden');
         }
+
         galleryContainer.insertAdjacentHTML('beforeend', hits.map(hit => createMarkup(hit)).join(''));
         lightbox.refresh();
         smoothScroll();
         page += 1;
-    })
-    .catch(limitedAccess);
+
+    } catch (error) {
+        limitedAccess();
+    }
 }
 
 function requestError() {
@@ -79,4 +85,3 @@ function smoothScroll() {
         behavior: "smooth",
     });
 }
-
